@@ -1,0 +1,29 @@
+{
+  "name": "dongjw321/php-frame",
+  "description": "自已全用的PHP框架",
+  "keywords": [
+    "aliyun",
+    "mns"
+  ],
+  "type": "library",
+  "license": "Apache",
+  "authors": [
+    {
+      "name": "dongjw321",
+      "email": "dongjw321@163.com"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "~6.0",
+    "monolog/monolog": "1.15.0",
+    "pimple/pimple": "~3.0",
+    "illuminate/database":"5.0.0",
+    "illuminate/pagination":"5.0.0",
+    "nikic/fast-route": "^0.6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "DongPHP\\": "src"
+    }
+  }
+}
