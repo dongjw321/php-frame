@@ -12,13 +12,14 @@ namespace DongPHP;
 
 use DongPHP\Libraries\Input;
 use DongPHP\Libraries\Output;
+use Pimple\Container;
 
 if (!defined('APP_PATH')) {
     throw new \Exception('APP_PATH NOT defined!');
 }
 
 
-class Application
+class Application extends Container
 {
     /**
      * 程序开始时间
@@ -102,31 +103,29 @@ class Application
 
     private $muti_version = null;
 
+
+    protected $config;
+
     /**
      * @var self
      */
     public static $instance;
 
-    public function __construct($namespace = '', $route = '')
+    public function __construct($config, $namespace = '', $route = '')
     {
-
-        if (file_exists(SYS_PATH.'Config/'.ENVIRONMENT.'/constant.php')) {
-            include_once SYS_PATH.'Config/'.ENVIRONMENT.'/constant.php';
-        }
-
-        Helper::load('helpers', true);
-
-        $this->setNamespace($namespace);
+        parent::__construct();
 
         $this->script_start_time = microtime(true);
 
-        if ($route) {
-            $this->dispatcher = new Dispatcher($route, $this->controller_namespace);
-        }
+        Helper::load('helpers', true);
 
-        $this->setLogger();
+        $this->setNamespace($namespace)
+             ->setLogger()
+             ->setGlobal();
+    }
 
-        $this->setGlobal();
+    public function setShutdown(\Closure $callback) {
+        register_shutdown_function($callback());
     }
 
     public function setGlobal()
@@ -194,6 +193,7 @@ class Application
             $logger = Logger::get('system');
         }
         $this->logger = $logger;
+        return $this;
     }
 
     public function setExceptionsCapture(callable $callback)

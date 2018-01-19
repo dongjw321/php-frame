@@ -3,6 +3,8 @@
 namespace DongPHP\Libraries;
 
 
+use DongPHP\Logger;
+
 if (!class_exists('MemcacheException')) {
     class MemcacheException extends \Exception{}
 }

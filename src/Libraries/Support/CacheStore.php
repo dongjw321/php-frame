@@ -1,6 +1,6 @@
 <?php
 namespace DongPHP\Libraries\Support;
-use DongPHP\Data;
+use DongPHP\Cache;
 
 /**
  * this is part of xyfree
@@ -20,7 +20,7 @@ class CacheStore
 
     public function __construct ($store, $key, $type='memcache', $extime=0)
     {
-        $this->store = Data::$type($store);
+        $this->store = Cache::$type($store);
         $this->key   = $key;
     }
 

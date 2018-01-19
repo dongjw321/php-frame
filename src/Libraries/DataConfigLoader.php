@@ -4,16 +4,22 @@ namespace DongPHP\Libraries;
 
 class DataConfigLoader
 {
+    protected static $hash_class = [];
 
-    public static function db($table, $hash=null) {
+    public static function setHash($class_name, $type="")
+    {
+        self::$hash_class[$type] = $class_name;
+    }
+
+    public static function db($table, $hash_key=null) {
         if (!$table) {
             throw new \Exception('table 参数错误');
         }
         $con    = self::parseTable($table);
         $table  = $con['table'];
-        $config = Config::get(ENVIRONMENT.'/'.$con['dir'].'/db.'.$con['table'], true);
+        $config = Config::environment($con['dir'].'/db.'.$con['table']);
         if (!$config) {
-            $config = Config::get(ENVIRONMENT.'/'.$con['dir'].'/db.default', true);
+            $config = Config::environment($con['dir'].'/db.default');
             if (!$config) {
                 throw new \Exception('db: ' . $table . '对应的配置信息不存在');
             }
@@ -21,17 +27,14 @@ class DataConfigLoader
 
         $database    = isset($config['database']) ? $config['database'] : null ;
         $table_alias = '';
-        if ($hash && ENVIRONMENT!='development' || (defined('NEW_PC_DEVELOPMENT_OFFLINE'))) {
-            if ($con['dir']) {
-                $return = call_user_func_array(__NAMESPACE__.'\ConfigHash\\'.ucfirst($con['dir']).'Hash::hash',[$database, $table, $hash]);
-            } else {
-                $return = call_user_func_array(__NAMESPACE__.'\ConfigHash\Hash::hash',[$database, $table, $hash]);
-            }
 
+        if ($hash_key && isset(self::$hash_class['mysql'])) {
+            $return = call_user_func_array(self::$hash_class['mysql'],[$database, $table, $hash_key]);
             $database    = $return['database'];
             $table       = $return['table'];
             $table_alias = $return['table_alias'];
         }
+
         /* 最终返回的信息, 以下字段为必须返回的 */
         $ret = array(
             'host'        => $config['host'],
@@ -58,7 +61,7 @@ class DataConfigLoader
         }
 
         $con    = self::parseTable($table);
-        $config = Config::get(ENVIRONMENT.'/'.$con['dir'].'/redis.'.$con['table'], true);
+        $config = Config::environment($con['dir'].'/redis.'.$con['table']);
         if (!$config) {
             throw new \Exception('redis: '.$table.'对应的配置信息不存在');
         }
@@ -78,7 +81,7 @@ class DataConfigLoader
         }
 
         $con    = self::parseTable($table);
-        $config = Config::get(ENVIRONMENT.'/'.$con['dir'].'/memcache.'.$con['table'], true);
+        $config = Config::environment($con['dir'].'/memcache.'.$con['table']);
         if (!$config) {
             throw new \Exception('memcache'.$table.'对应的配置信息不存在');
         }

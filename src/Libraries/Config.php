@@ -1,45 +1,46 @@
 <?php
-/**
- * this is part of xyfree
- *
- * @file Config.php
- * @use
- * @author Dongjiwu(dongjw321@163.com)
- * @date 2015-12-18 15:42
- *
- */
-
 namespace DongPHP\Libraries;
 
 class Config
 {
     public static $config;
 
-    public static function loadFile($file, $public=false)
+    protected static $path = [];
+
+    public static function setPath(array $path)
     {
-        $key = $file.'|'.(string)$public;
+        self::$path['normal']  = $path;
+    }
+
+    public static function setEnvironmentPath(array $path)
+    {
+        self::$path['environment'] = $path;
+    }
+
+    public static function loadFile($file, $path='')
+    {
+        $key = $file.'|'.(string)$path;
 
         if (empty(self::$config[$key])) {
-            $dir = $public ? dirname(dirname(__FILE__)) : APP_PATH;
-            self::$config[$key] = include_once $dir."/Config/".$file.".php";
+            self::$config[$key] = self::$path['normal'] .$file.".php";
         }
 
         return self::$config[$key];
     }
 
-    public static function get($key, $public=false)
+    public static function get($key)
     {
         if (!$key) {
             throw new \Exception('请输入要加载的配置文件');
         }
-        $store_key = $key.'|'.(string)$public;
+
         $argvs  = explode('.', $key);
         $file   = array_shift($argvs);
-        if (isset(self::$config[$store_key])) {
-            return self::$config[$store_key];
+        if (isset(self::$config[$key])) {
+            return self::$config[$key];
         }
 
-        $config = self::loadFile($file, $public);
+        $config = self::loadFile($file);
         foreach ($argvs as $v) {
             if (isset($config[$v])) {
                 $config = $config[$v];
@@ -47,7 +48,7 @@ class Config
                 return null;
             }
         }
-        self::$config[$store_key] = $config;
+        self::$config[$key] = $config;
         return $config;
     }
 
@@ -59,6 +60,6 @@ class Config
      */
     public static function environment($key)
     {
-        return self::get(ENVIRONMENT.'/'.$key);
+        return self::get(self::$path['environment'].'/'.$key);
     }
 }
