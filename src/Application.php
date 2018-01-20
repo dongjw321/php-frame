@@ -232,14 +232,7 @@ class Application extends Container
 
         try {
             $route  = $this->dispatch();
-            $return = $this->execute($route);
-            if ($return) {
-                if (IS_CLI) {
-                    echo json_encode(['code' => 200, 'data' => $return]);
-                } else {
-                    Output::json(['code' => 200, 'data' => $return]);
-                }
-            }
+            $this->execute($route);
         } catch (\Exception $e) {
             if (is_callable($this->exceptions_capture)) {
                 $capture = $this->exceptions_capture;
